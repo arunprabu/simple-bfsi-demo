@@ -1,0 +1,137 @@
+.bank-shell {
+  min-height: 100vh;
+  padding: 0 1.25rem 4rem;
+}
+
+.bank-header {
+  align-items: center;
+  border-bottom: 1px solid #d9e1e8;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 68rem;
+  padding: 1.25rem 0;
+}
+
+.bank-name {
+  color: #123b5d;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.secure-label {
+  color: #496272;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.transfer-card {
+  background: #fff;
+  border: 1px solid #d9e1e8;
+  border-radius: 1rem;
+  box-shadow: 0 1.25rem 3rem rgb(26 54 72 / 8%);
+  margin: 4rem auto 0;
+  max-width: 34rem;
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.eyebrow {
+  color: #24735b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.transfer-card h1 {
+  color: #123b5d;
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  margin: 0;
+}
+
+.intro {
+  color: #496272;
+  line-height: 1.5;
+  margin: 0.75rem 0 2rem;
+}
+
+.transfer-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.transfer-form label {
+  color: #203746;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-top: 0.6rem;
+}
+
+.transfer-form input {
+  border: 1px solid #aebfca;
+  border-radius: 0.5rem;
+  font: inherit;
+  min-height: 2.9rem;
+  padding: 0.65rem 0.8rem;
+}
+
+.transfer-form input:focus-visible,
+.transfer-form button:focus-visible {
+  outline: 3px solid #78b9a3;
+  outline-offset: 2px;
+}
+
+.transfer-form button {
+  background: #12674d;
+  border: 0;
+  border-radius: 0.5rem;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  margin-top: 1rem;
+  min-height: 3rem;
+}
+
+.transfer-form button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.form-error,
+.transfer-error {
+  background: #fff2f0;
+  border-radius: 0.4rem;
+  color: #8b231b;
+  line-height: 1.5;
+  padding: 0.75rem;
+}
+
+.form-error {
+  margin: 0.25rem 0 0;
+}
+
+.transfer-error {
+  margin: 1rem 0 0;
+}
+
+.confirmation {
+  background: #edf8f2;
+  border: 1px solid #b3ddc5;
+  border-radius: 0.6rem;
+  color: #183b2b;
+  margin-top: 1.5rem;
+  overflow-wrap: anywhere;
+  padding: 1rem;
+}
+
+.confirmation h2 {
+  color: #145c40;
+  margin: 0 0 0.75rem;
+}
+
+.confirmation p {
+  margin: 0.4rem 0;
+}

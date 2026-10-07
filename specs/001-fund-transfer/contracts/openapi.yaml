@@ -1,0 +1,171 @@
+openapi: 3.1.0
+info:
+  title: Simple Bank Fund Transfer API
+  version: 1.0.0
+  description: >
+    Customer fund transfers. The caller must be authenticated by the bank's
+    existing session mechanism; the exact authentication scheme is supplied by
+    the hosting application.
+servers:
+  - url: /
+paths:
+  /api/v1/transfers:
+    post:
+      operationId: createTransfer
+      summary: Transfer funds to another Simple Bank account
+      description: >
+        Creates a completed transfer from the authenticated customer's savings
+        account. Full account numbers must not be logged. The request body does
+        not accept customer_id; customer identity is derived from authentication.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+            example:
+              from_account: '12345678'
+              to_account: '87654321'
+              amount: '125.50'
+      responses:
+        '201':
+          description: Transfer completed and saved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResponse'
+        '400':
+          description: Invalid amount or same-account transfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidAmount:
+                  value:
+                    error:
+                      code: INVALID_AMOUNT
+                      message: Amount must be at least Rs 1.00 and have no more than two decimal places.
+                sameAccount:
+                  value:
+                    error:
+                      code: SAME_ACCOUNT
+                      message: Source and recipient accounts must be different.
+        '404':
+          description: Recipient account was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Account state, balance, or daily limit prevents the transfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                accountInactive:
+                  value:
+                    error:
+                      code: ACCOUNT_INACTIVE
+                      message: Both accounts must be active.
+                insufficientBalance:
+                  value:
+                    error:
+                      code: INSUFFICIENT_BALANCE
+                      message: The source account does not have enough available funds.
+                dailyLimitExceeded:
+                  value:
+                    error:
+                      code: DAILY_LIMIT_EXCEEDED
+                      message: The transfer exceeds the applicable source-account or customer-wide daily transfer limit.
+        '500':
+          description: Transfer could not complete; balances remain unchanged.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Caller is not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    TransferRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - from_account
+        - to_account
+        - amount
+      properties:
+        from_account:
+          type: string
+          description: Source savings account owned by the authenticated customer.
+          minLength: 1
+        to_account:
+          type: string
+          description: Different, existing Simple Bank recipient account.
+          minLength: 1
+        amount:
+          type: string
+          pattern: '^(0|[1-9][0-9]*)(\.[0-9]{1,2})?$'
+          description: INR amount, at least 1.00, with no more than two decimal places.
+          example: '125.50'
+    TransferResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - transaction_id
+        - status
+        - from_account
+        - to_account
+        - amount
+        - created_at
+      properties:
+        transaction_id:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          const: COMPLETED
+        from_account:
+          type: string
+          pattern: '^XXXX[0-9]{4}$'
+        to_account:
+          type: string
+          pattern: '^XXXX[0-9]{4}$'
+        amount:
+          type: string
+          pattern: '^[0-9]+\.[0-9]{2}$'
+        created_at:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - INVALID_AMOUNT
+                - SAME_ACCOUNT
+                - ACCOUNT_NOT_FOUND
+                - ACCOUNT_INACTIVE
+                - INSUFFICIENT_BALANCE
+                - DAILY_LIMIT_EXCEEDED
+                - TRANSFER_FAILED
+                - UNAUTHENTICATED
+            message:
+              type: string
