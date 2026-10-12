@@ -1,0 +1,156 @@
+openapi: 3.1.0
+info:
+  title: Simple Bank Development/Test Sign-In
+  version: 1.0.0
+  description: >
+    Local/test-only sign-in using an allowlisted seeded demo profile. This
+    contract does not replace production bank authentication.
+servers:
+  - url: /
+paths:
+  /api/v1/dev-auth/session:
+    get:
+      operationId: getDevelopmentSession
+      summary: Get local demo sign-in availability and state
+      responses:
+        '200':
+          description: Current fake sign-in availability and browser session state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStatus'
+        '503':
+          description: Demo profile data could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createDevelopmentSession
+      summary: Sign in as an allowlisted seeded demo customer
+      description: >
+        Available only when fake sign-in is explicitly enabled in a development
+        or test environment. It accepts a demo profile alias, not a password or
+        arbitrary customer identifier. The signed JWT is returned only as an
+        HttpOnly cookie and is not included in the response body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemoSignInRequest'
+            example:
+              profile_id: demo-user-1
+      responses:
+        '200':
+          description: Demo session created.
+          headers:
+            Set-Cookie:
+              description: HttpOnly, SameSite=Lax `dev_session` cookie scoped to `/api/v1`.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStatus'
+        '403':
+          description: Fake sign-in is disabled in this environment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The demo profile is not allowlisted or its customer record is missing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Demo profile data could not be loaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteDevelopmentSession
+      summary: Sign out of the local demo session
+      responses:
+        '200':
+          description: Demo-session cookie cleared.
+          headers:
+            Set-Cookie:
+              description: Expired `dev_session` cookie scoped to `/api/v1`.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStatus'
+components:
+  schemas:
+    SessionStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - fake_auth_enabled
+        - authenticated
+        - profiles
+      properties:
+        fake_auth_enabled:
+          type: boolean
+        authenticated:
+          type: boolean
+        profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/DemoProfile'
+        current_profile:
+          $ref: '#/components/schemas/DemoProfile'
+    DemoProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - profile_id
+        - label
+      properties:
+        profile_id:
+          type: string
+          enum:
+            - demo-user-1
+            - demo-user-2
+        label:
+          type: string
+          example: Demo user 1
+    DemoSignInRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - profile_id
+      properties:
+        profile_id:
+          type: string
+          enum:
+            - demo-user-1
+            - demo-user-2
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - FAKE_AUTH_DISABLED
+                - DEMO_PROFILE_NOT_FOUND
+                - DEMO_DATA_UNAVAILABLE
+                - UNAUTHENTICATED
+            message:
+              type: string

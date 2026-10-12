@@ -77,7 +77,16 @@
   padding: 0.65rem 0.8rem;
 }
 
+.transfer-form select {
+  border: 1px solid #aebfca;
+  border-radius: 0.5rem;
+  font: inherit;
+  min-height: 2.9rem;
+  padding: 0.65rem 0.8rem;
+}
+
 .transfer-form input:focus-visible,
+.transfer-form select:focus-visible,
 .transfer-form button:focus-visible {
   outline: 3px solid #78b9a3;
   outline-offset: 2px;
@@ -134,4 +143,36 @@
 
 .confirmation p {
   margin: 0.4rem 0;
+}
+
+.dev-session-banner {
+  align-items: center;
+  background: #e8f4ef;
+  border-bottom: 1px solid #b3ddc5;
+  color: #183b2b;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+}
+
+.dev-session-banner button {
+  background: #fff;
+  border: 1px solid #83bba1;
+  border-radius: 0.4rem;
+  color: #145c40;
+  cursor: pointer;
+  font: inherit;
+  padding: 0.45rem 0.75rem;
+}
+
+.dev-session-banner button:focus-visible {
+  outline: 3px solid #78b9a3;
+  outline-offset: 2px;
+}
+
+.dev-session-banner button:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }

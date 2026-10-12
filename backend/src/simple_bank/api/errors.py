@@ -13,6 +13,9 @@ class TransferErrorCode(str, Enum):
     DAILY_LIMIT_EXCEEDED = "DAILY_LIMIT_EXCEEDED"
     TRANSFER_FAILED = "TRANSFER_FAILED"
     UNAUTHENTICATED = "UNAUTHENTICATED"
+    FAKE_AUTH_DISABLED = "FAKE_AUTH_DISABLED"
+    DEMO_PROFILE_NOT_FOUND = "DEMO_PROFILE_NOT_FOUND"
+    DEMO_DATA_UNAVAILABLE = "DEMO_DATA_UNAVAILABLE"
 
 
 ERROR_STATUS_CODES: dict[TransferErrorCode, int] = {
@@ -24,6 +27,9 @@ ERROR_STATUS_CODES: dict[TransferErrorCode, int] = {
     TransferErrorCode.DAILY_LIMIT_EXCEEDED: 409,
     TransferErrorCode.TRANSFER_FAILED: 500,
     TransferErrorCode.UNAUTHENTICATED: 401,
+    TransferErrorCode.FAKE_AUTH_DISABLED: 403,
+    TransferErrorCode.DEMO_PROFILE_NOT_FOUND: 404,
+    TransferErrorCode.DEMO_DATA_UNAVAILABLE: 503,
 }
 
 ERROR_MESSAGES: dict[TransferErrorCode, str] = {
@@ -44,6 +50,15 @@ ERROR_MESSAGES: dict[TransferErrorCode, str] = {
         "Transfer could not be completed. No funds were moved."
     ),
     TransferErrorCode.UNAUTHENTICATED: "Sign in to make a transfer.",
+    TransferErrorCode.FAKE_AUTH_DISABLED: (
+        "Demo sign-in is not enabled in this environment."
+    ),
+    TransferErrorCode.DEMO_PROFILE_NOT_FOUND: (
+        "The selected demo profile is not available."
+    ),
+    TransferErrorCode.DEMO_DATA_UNAVAILABLE: (
+        "Demo sign-in data is temporarily unavailable."
+    ),
 }
 
 

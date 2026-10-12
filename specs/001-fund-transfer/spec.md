@@ -284,11 +284,11 @@ balance changes.
 
 #### Request fields
 
-| Field | Type | Required | Meaning and validation |
-|---|---|---:|---|
-| `from_account` | String | Yes | Source savings account number owned by the authenticated customer. |
-| `to_account` | String | Yes | Existing, different Simple Bank recipient account number. |
-| `amount` | Decimal string | Yes | INR amount of at least Rs 1.00 with no more than two fractional digits. |
+| Field          | Type           | Required | Meaning and validation                                                  |
+| -------------- | -------------- | -------: | ----------------------------------------------------------------------- |
+| `from_account` | String         |      Yes | Source savings account number owned by the authenticated customer.      |
+| `to_account`   | String         |      Yes | Existing, different Simple Bank recipient account number.               |
+| `amount`       | Decimal string |      Yes | INR amount of at least Rs 1.00 with no more than two fractional digits. |
 
 Example request:
 
@@ -305,14 +305,14 @@ Example request:
 The endpoint MUST return HTTP `201 Created` after the transfer is completed and
 saved.
 
-| Field | Type | Meaning |
-|---|---|---|
-| `transaction_id` | String | Unique identifier for the saved transfer. |
-| `status` | String | `COMPLETED`. |
-| `from_account` | String | Source account reference masked to its last four digits. |
-| `to_account` | String | Recipient account reference masked to its last four digits. |
-| `amount` | Decimal string | Completed transfer amount, with two fractional digits. |
-| `created_at` | String | ISO 8601 timestamp including its UTC offset. |
+| Field            | Type           | Meaning                                                     |
+| ---------------- | -------------- | ----------------------------------------------------------- |
+| `transaction_id` | String         | Unique identifier for the saved transfer.                   |
+| `status`         | String         | `COMPLETED`.                                                |
+| `from_account`   | String         | Source account reference masked to its last four digits.    |
+| `to_account`     | String         | Recipient account reference masked to its last four digits. |
+| `amount`         | Decimal string | Completed transfer amount, with two fractional digits.      |
+| `created_at`     | String         | ISO 8601 timestamp including its UTC offset.                |
 
 Example response:
 
@@ -341,15 +341,15 @@ moved when the transfer was declined or could not complete:
 }
 ```
 
-| HTTP status | Error code | Condition |
-|---:|---|---|
-| 400 | `INVALID_AMOUNT` | Amount is below Rs 1.00, non-positive, or has more than two decimal places. |
-| 400 | `SAME_ACCOUNT` | Source and recipient are the same account. |
-| 404 | `ACCOUNT_NOT_FOUND` | The recipient does not identify an existing Simple Bank account. |
-| 409 | `ACCOUNT_INACTIVE` | The source or recipient account is inactive. |
-| 409 | `INSUFFICIENT_BALANCE` | The source account does not have enough available funds. |
-| 409 | `DAILY_LIMIT_EXCEEDED` | The transfer would exceed the customer's Rs 1,00,000 aggregate for the IST calendar day or the source account's age-based daily limit (Rs 50,000 if less than 30 days old; otherwise Rs 1,00,000). |
-| 500 | `TRANSFER_FAILED` | The transfer could not complete; neither account balance is changed. |
+| HTTP status | Error code             | Condition                                                                                                                                                                                          |
+| ----------: | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|         400 | `INVALID_AMOUNT`       | Amount is below Rs 1.00, non-positive, or has more than two decimal places.                                                                                                                        |
+|         400 | `SAME_ACCOUNT`         | Source and recipient are the same account.                                                                                                                                                         |
+|         404 | `ACCOUNT_NOT_FOUND`    | The recipient does not identify an existing Simple Bank account.                                                                                                                                   |
+|         409 | `ACCOUNT_INACTIVE`     | The source or recipient account is inactive.                                                                                                                                                       |
+|         409 | `INSUFFICIENT_BALANCE` | The source account does not have enough available funds.                                                                                                                                           |
+|         409 | `DAILY_LIMIT_EXCEEDED` | The transfer would exceed the customer's Rs 1,00,000 aggregate for the IST calendar day or the source account's age-based daily limit (Rs 50,000 if less than 30 days old; otherwise Rs 1,00,000). |
+|         500 | `TRANSFER_FAILED`      | The transfer could not complete; neither account balance is changed.                                                                                                                               |
 
 `ACCOUNT_NOT_FOUND` and `TRANSFER_FAILED` are included to cover recipient lookup and
 all-or-nothing transfer failures in addition to the requested error codes. Error
@@ -365,42 +365,42 @@ messages MUST be safe for customers and MUST NOT contain full account numbers.
 
 ### Account
 
-| Field | Meaning and constraints |
-|---|---|
-| `account_number` | Unique account identifier; full values MUST NOT appear in logs. |
-| `customer_id` | Identifier of the account owner; the source owner MUST match the authenticated customer. |
-| `opened_at` | Timestamp when the account was opened; used to determine its age at transfer submission. |
-| `balance` | INR monetary value using exact decimal arithmetic and two decimal places. |
-| `status` | Account state; transfer requires `ACTIVE`. |
-| `account_type` | Account kind; the source account MUST be `SAVINGS`. |
+| Field            | Meaning and constraints                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------- |
+| `account_number` | Unique account identifier; full values MUST NOT appear in logs.                          |
+| `customer_id`    | Identifier of the account owner; the source owner MUST match the authenticated customer. |
+| `opened_at`      | Timestamp when the account was opened; used to determine its age at transfer submission. |
+| `balance`        | INR monetary value using exact decimal arithmetic and two decimal places.                |
+| `status`         | Account state; transfer requires `ACTIVE`.                                               |
+| `account_type`   | Account kind; the source account MUST be `SAVINGS`.                                      |
 
 ### Transaction
 
-| Field | Meaning and constraints |
-|---|---|
-| `transaction_id` | Unique identifier for the completed transfer. |
-| `from_account` | Reference to the source Account. |
-| `to_account` | Reference to the recipient Account. |
-| `amount` | INR value moved, using exact decimal arithmetic and two decimal places. |
-| `status` | `COMPLETED` for a saved transfer. |
-| `created_at` | Time the transfer completed, represented as an ISO 8601 timestamp including its UTC offset. |
+| Field            | Meaning and constraints                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| `transaction_id` | Unique identifier for the completed transfer.                                               |
+| `from_account`   | Reference to the source Account.                                                            |
+| `to_account`     | Reference to the recipient Account.                                                         |
+| `amount`         | INR value moved, using exact decimal arithmetic and two decimal places.                     |
+| `status`         | `COMPLETED` for a saved transfer.                                                           |
+| `created_at`     | Time the transfer completed, represented as an ISO 8601 timestamp including its UTC offset. |
 
 Declined attempts do not create completed Transaction records. A saved Transaction
 represents the full debit and credit; partial transfers are not permitted.
 
 ## Examples
 
-| # | Source / recipient | Amount and starting conditions | Expected result |
-|---:|---|---|---|
-| 1 | Active source `…1234` to different active recipient `…5678` | Rs 125.50; source balance Rs 500.00; daily total Rs 0.00 | HTTP 201; `COMPLETED`; unique transaction ID saved; source Rs 374.50 and recipient credited Rs 125.50. |
-| 2 | Active source `…1234` to active recipient `…5678` | Rs 0.50 | HTTP 400 `INVALID_AMOUNT`; no balance change and no completed transfer record. |
-| 3 | Active source `…1234` to active recipient `…5678` | Rs 125.50; source balance Rs 100.00 | HTTP 409 `INSUFFICIENT_BALANCE`; no balance change. |
-| 4 | Active source `…1234` (open at least 30 days) to active recipient `…5678` | Rs 1.01; customer's completed outgoing total for the IST day is Rs 99,999.00; this source account's total is Rs 0.00 | HTTP 409 `DAILY_LIMIT_EXCEEDED`; no balance change. |
-| 5 | Active account `…1234` to the same account `…1234` | Rs 10.00 | HTTP 400 `SAME_ACCOUNT`; no balance change. |
-| 6 | Active source account `…1234` (opened 29 elapsed days earlier) to active recipient `…5678` | Rs 10,000; source-account total Rs 40,000; customer-wide total Rs 40,000 | HTTP 201; transfer completes and the source-account total becomes exactly Rs 50,000. |
-| 7 | Active source account `…1234` (opened 29 elapsed days earlier) to active recipient `…5678` | Rs 1.00; source-account total Rs 50,000; customer-wide total Rs 50,000 | HTTP 409 `DAILY_LIMIT_EXCEEDED`; no balance change and neither total includes the declined amount. |
-| 8 | Active source account `…1234` (opened exactly 30 elapsed days earlier) to active recipient `…5678` | Rs 20,000; source-account and customer-wide totals are each Rs 80,000 | HTTP 201; transfer completes and both totals become exactly Rs 1,00,000. |
-| 9 | Customer's young source account `…1234` has reached Rs 50,000; mature source account `…5678` is active | Rs 50,000 from the mature source; its total is Rs 0.00 and the customer's aggregate is Rs 50,000 | HTTP 201; transfer completes from the mature source and the customer-wide total becomes Rs 1,00,000. |
+|   # | Source / recipient                                                                                     | Amount and starting conditions                                                                                       | Expected result                                                                                        |
+| --: | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+|   1 | Active source `…1234` to different active recipient `…5678`                                            | Rs 125.50; source balance Rs 500.00; daily total Rs 0.00                                                             | HTTP 201; `COMPLETED`; unique transaction ID saved; source Rs 374.50 and recipient credited Rs 125.50. |
+|   2 | Active source `…1234` to active recipient `…5678`                                                      | Rs 0.50                                                                                                              | HTTP 400 `INVALID_AMOUNT`; no balance change and no completed transfer record.                         |
+|   3 | Active source `…1234` to active recipient `…5678`                                                      | Rs 125.50; source balance Rs 100.00                                                                                  | HTTP 409 `INSUFFICIENT_BALANCE`; no balance change.                                                    |
+|   4 | Active source `…1234` (open at least 30 days) to active recipient `…5678`                              | Rs 1.01; customer's completed outgoing total for the IST day is Rs 99,999.00; this source account's total is Rs 0.00 | HTTP 409 `DAILY_LIMIT_EXCEEDED`; no balance change.                                                    |
+|   5 | Active account `…1234` to the same account `…1234`                                                     | Rs 10.00                                                                                                             | HTTP 400 `SAME_ACCOUNT`; no balance change.                                                            |
+|   6 | Active source account `…1234` (opened 29 elapsed days earlier) to active recipient `…5678`             | Rs 10,000; source-account total Rs 40,000; customer-wide total Rs 40,000                                             | HTTP 201; transfer completes and the source-account total becomes exactly Rs 50,000.                   |
+|   7 | Active source account `…1234` (opened 29 elapsed days earlier) to active recipient `…5678`             | Rs 1.00; source-account total Rs 50,000; customer-wide total Rs 50,000                                               | HTTP 409 `DAILY_LIMIT_EXCEEDED`; no balance change and neither total includes the declined amount.     |
+|   8 | Active source account `…1234` (opened exactly 30 elapsed days earlier) to active recipient `…5678`     | Rs 20,000; source-account and customer-wide totals are each Rs 80,000                                                | HTTP 201; transfer completes and both totals become exactly Rs 1,00,000.                               |
+|   9 | Customer's young source account `…1234` has reached Rs 50,000; mature source account `…5678` is active | Rs 50,000 from the mature source; its total is Rs 0.00 and the customer's aggregate is Rs 50,000                     | HTTP 201; transfer completes from the mature source and the customer-wide total becomes Rs 1,00,000.   |
 
 ## Success Criteria
 
