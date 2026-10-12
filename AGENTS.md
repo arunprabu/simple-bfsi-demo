@@ -13,6 +13,7 @@ Use python in your commands, not python3
 - Follow the stack and scope named by the active use case. Unless it says otherwise, backend examples use Python 3.12 and FastAPI, and the web UI uses React with Vite.
 - Keep training guides consistent with the repository's existing terminology, use-case numbering, and learner-focused style.
 - This project is using Github SpecKit. After completing any of the Github SpecKit workflow skill, inform the user about next skill and a possible prompt to use along with it
+- Always create a new git branch for your work
 
 ## Banking and code quality
 
