@@ -349,6 +349,7 @@ moved when the transfer was declined or could not complete:
 |         409 | `ACCOUNT_INACTIVE`     | The source or recipient account is inactive.                                                                                                                                                       |
 |         409 | `INSUFFICIENT_BALANCE` | The source account does not have enough available funds.                                                                                                                                           |
 |         409 | `DAILY_LIMIT_EXCEEDED` | The transfer would exceed the customer's Rs 1,00,000 aggregate for the IST calendar day or the source account's age-based daily limit (Rs 50,000 if less than 30 days old; otherwise Rs 1,00,000). |
+|         422 | `INVALID_REQUEST`      | The request body is malformed (missing, unknown, or over-long fields). The response never echoes the submitted values.                                                                             |
 |         500 | `TRANSFER_FAILED`      | The transfer could not complete; neither account balance is changed.                                                                                                                               |
 
 `ACCOUNT_NOT_FOUND` and `TRANSFER_FAILED` are included to cover recipient lookup and

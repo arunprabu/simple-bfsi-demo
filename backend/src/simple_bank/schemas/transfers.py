@@ -7,8 +7,9 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 class TransferRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    from_account: StrictStr = Field(min_length=1)
-    to_account: StrictStr = Field(min_length=1)
+    # 64 matches the accounts.account_number column length.
+    from_account: StrictStr = Field(min_length=1, max_length=64)
+    to_account: StrictStr = Field(min_length=1, max_length=64)
     amount: StrictStr
 
 

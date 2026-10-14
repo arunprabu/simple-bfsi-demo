@@ -110,6 +110,48 @@ async def test_request_body_cannot_override_authenticated_customer() -> None:
     assert service.calls == []
 
 
+async def test_validation_errors_use_the_error_envelope_without_echoing_input() -> None:
+    service = StubTransferService()
+    from_account = "1234567890123456"
+    to_account = "6543210987654321"
+
+    response = await post_transfer(
+        make_app(service),
+        {"from_account": from_account, "to_account": to_account},
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": {
+            "code": "INVALID_REQUEST",
+            "message": "The request is not valid. Check the request fields and try again.",
+        }
+    }
+    assert from_account not in response.text
+    assert to_account not in response.text
+    assert service.calls == []
+
+
+@pytest.mark.parametrize("field", ["from_account", "to_account"])
+async def test_account_numbers_longer_than_the_column_are_rejected(field: str) -> None:
+    service = StubTransferService()
+
+    too_long = await post_transfer(
+        make_app(service),
+        {**VALID_REQUEST, field: "1" * 65},
+    )
+    at_limit = await post_transfer(
+        make_app(service),
+        {**VALID_REQUEST, field: "1" * 64},
+    )
+
+    assert too_long.status_code == 422
+    assert too_long.json()["error"]["code"] == "INVALID_REQUEST"
+    assert "1" * 65 not in too_long.text
+    assert at_limit.status_code == 201
+    assert len(service.calls) == 1
+
+
 async def test_missing_authenticated_identity_returns_401() -> None:
     service = StubTransferService()
     response = await post_transfer(
@@ -125,6 +167,7 @@ async def test_missing_authenticated_identity_returns_401() -> None:
 @pytest.mark.parametrize(
     ("code", "status"),
     [
+        (TransferErrorCode.INVALID_REQUEST, 422),
         (TransferErrorCode.INVALID_AMOUNT, 400),
         (TransferErrorCode.SAME_ACCOUNT, 400),
         (TransferErrorCode.ACCOUNT_NOT_FOUND, 404),

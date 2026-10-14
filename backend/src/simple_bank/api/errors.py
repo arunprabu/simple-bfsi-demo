@@ -1,10 +1,12 @@
 from enum import Enum
 
 from fastapi import Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 
 class TransferErrorCode(str, Enum):
+    INVALID_REQUEST = "INVALID_REQUEST"
     INVALID_AMOUNT = "INVALID_AMOUNT"
     SAME_ACCOUNT = "SAME_ACCOUNT"
     ACCOUNT_NOT_FOUND = "ACCOUNT_NOT_FOUND"
@@ -19,6 +21,7 @@ class TransferErrorCode(str, Enum):
 
 
 ERROR_STATUS_CODES: dict[TransferErrorCode, int] = {
+    TransferErrorCode.INVALID_REQUEST: 422,
     TransferErrorCode.INVALID_AMOUNT: 400,
     TransferErrorCode.SAME_ACCOUNT: 400,
     TransferErrorCode.ACCOUNT_NOT_FOUND: 404,
@@ -33,6 +36,9 @@ ERROR_STATUS_CODES: dict[TransferErrorCode, int] = {
 }
 
 ERROR_MESSAGES: dict[TransferErrorCode, str] = {
+    TransferErrorCode.INVALID_REQUEST: (
+        "The request is not valid. Check the request fields and try again."
+    ),
     TransferErrorCode.INVALID_AMOUNT: (
         "Amount must be at least Rs 1.00 and have no more than two decimal places."
     ),
@@ -73,16 +79,27 @@ class TransferError(Exception):
         super().__init__(self.message)
 
 
+def _error_response(code: TransferErrorCode, message: str) -> JSONResponse:
+    return JSONResponse(
+        status_code=ERROR_STATUS_CODES[code],
+        content={"error": {"code": code.value, "message": message}},
+    )
+
+
 async def transfer_exception_handler(
     _request: Request,
     exc: TransferError,
 ) -> JSONResponse:
-    return JSONResponse(
-        status_code=ERROR_STATUS_CODES[exc.code],
-        content={
-            "error": {
-                "code": exc.code.value,
-                "message": exc.message,
-            }
-        },
+    return _error_response(exc.code, exc.message)
+
+
+async def request_validation_exception_handler(
+    _request: Request,
+    _exc: RequestValidationError,
+) -> JSONResponse:
+    # FastAPI's default body echoes the submitted input, which can include full
+    # account numbers, so never forward the validation details to the caller.
+    return _error_response(
+        TransferErrorCode.INVALID_REQUEST,
+        ERROR_MESSAGES[TransferErrorCode.INVALID_REQUEST],
     )

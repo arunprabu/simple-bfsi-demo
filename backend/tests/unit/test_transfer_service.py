@@ -216,7 +216,7 @@ async def test_completed_transfers_receive_distinct_transaction_ids() -> None:
 
 @pytest.mark.parametrize(
     "amount",
-    ["0.99", "0", "1.001", "1.000", "NaN", "1e2", "-1", "", " 1.00"],
+    ["0.99", "0", "1.001", "1.000", "NaN", "1e2", "-1", "", " 1.00", "9" * 27 + ".00", "9" * 500],
 )
 async def test_invalid_amounts_are_declined_without_state_changes(amount: str) -> None:
     store = make_store()
@@ -496,3 +496,16 @@ async def test_storage_failure_rolls_back_balance_changes() -> None:
     assert store.accounts["12345678"].balance == Decimal("500.00")
     assert store.accounts["87654321"].balance == Decimal("50.00")
     assert store.transactions == []
+
+
+async def test_unwrapped_connection_failure_returns_transfer_failed() -> None:
+    class UnreachableUnitOfWork:
+        async def __aenter__(self) -> "UnreachableUnitOfWork":
+            raise ConnectionRefusedError("database host is unreachable")
+
+        async def __aexit__(self, *_exc_info: object) -> bool:
+            return False
+
+    service = TransferService(lambda: UnreachableUnitOfWork(), clock=lambda: NOW)
+
+    await expect_error(service, TransferErrorCode.TRANSFER_FAILED)

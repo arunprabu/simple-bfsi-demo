@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from sqlalchemy.engine import URL
 
@@ -12,7 +12,8 @@ class DatabaseConfigurationError(RuntimeError):
 
 @dataclass(frozen=True)
 class Settings:
-    database_url: str | None
+    # The URL can embed the database password, so keep it out of repr() output.
+    database_url: str | None = field(repr=False)
     app_env: str | None
     fake_auth_enabled: bool
 

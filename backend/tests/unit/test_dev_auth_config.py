@@ -60,6 +60,23 @@ def test_postgres_environment_components_build_a_sqlalchemy_url(
     assert parsed_url.port == 5433
 
 
+def test_settings_repr_does_not_expose_the_database_password(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clear_database_environment(monkeypatch)
+    password = secrets.token_urlsafe(18)
+    monkeypatch.setenv("POSTGRES_USER", "unit_user")
+    monkeypatch.setenv("POSTGRES_PASSWORD", password)
+    monkeypatch.setenv("POSTGRES_DB", "simple_bank_test")
+    monkeypatch.setenv("POSTGRES_HOST", "localhost")
+
+    settings = Settings.from_environment()
+
+    assert password not in repr(settings)
+    assert password not in str(settings)
+    assert password in settings.require_database_url()
+
+
 def test_fake_auth_is_disabled_when_environment_flag_is_missing(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
