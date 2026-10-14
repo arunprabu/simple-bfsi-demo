@@ -36,3 +36,5 @@ Use python in your commands, not python3
 - In particular, NEVER access `.env.local`, `.env.dev`, `.env.stage`, `.env.test`, or `.env.prod`.
 - Treat any other `.env` file as restricted too. Never read, search, modify, or reveal its contents.
 - Use python in your commands, not python3
+- Never delete the git branches yourself.
+- After completing your work, ask me permission to commit, push, raise PR, merge.
