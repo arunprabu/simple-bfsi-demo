@@ -3,12 +3,17 @@ from contextlib import asynccontextmanager
 import secrets
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
 from simple_bank.api.dependencies import (
     AuthenticatedCustomerResolver,
     resolve_dev_customer_id,
 )
-from simple_bank.api.errors import TransferError, transfer_exception_handler
+from simple_bank.api.errors import (
+    TransferError,
+    request_validation_exception_handler,
+    transfer_exception_handler,
+)
 from simple_bank.api.v1.router import api_router
 from simple_bank.auth.dev_jwt import DevJwtCodec
 from simple_bank.config import Settings
@@ -48,6 +53,10 @@ def create_app(
     app.state.dev_jwt_codec = dev_jwt_codec
     app.state.authenticated_customer_resolver = resolver
     app.add_exception_handler(TransferError, transfer_exception_handler)
+    app.add_exception_handler(
+        RequestValidationError,
+        request_validation_exception_handler,
+    )
     app.include_router(api_router, prefix="/api/v1")
     return app
 

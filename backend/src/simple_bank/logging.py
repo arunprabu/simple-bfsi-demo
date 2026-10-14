@@ -1,10 +1,15 @@
 import logging
+import re
 
 logger = logging.getLogger("simple_bank.transfers")
 
+_UNSAFE_MASK_CHARACTERS = re.compile(r"[^0-9A-Za-z]")
+
 
 def mask_account_number(account_number: str) -> str:
-    last_four = account_number[-4:].rjust(4, "0")
+    # Account numbers in declined requests are unvalidated input, so replace
+    # anything that could forge log lines (CR/LF, control characters, etc.).
+    last_four = _UNSAFE_MASK_CHARACTERS.sub("X", account_number[-4:]).rjust(4, "0")
     return f"XXXX{last_four}"
 
 

@@ -65,6 +65,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: The request body is malformed. The response never echoes the submitted values.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '503':
           description: Demo profile data could not be loaded.
           content:
@@ -148,6 +154,7 @@ components:
             code:
               type: string
               enum:
+                - INVALID_REQUEST
                 - FAKE_AUTH_DISABLED
                 - DEMO_PROFILE_NOT_FOUND
                 - DEMO_DATA_UNAVAILABLE

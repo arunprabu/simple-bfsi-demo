@@ -79,6 +79,20 @@ paths:
                     error:
                       code: DAILY_LIMIT_EXCEEDED
                       message: The transfer exceeds the applicable source-account or customer-wide daily transfer limit.
+        '422':
+          description: >
+            The request body is malformed (missing, unknown or over-long
+            fields). The response never echoes the submitted values.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidRequest:
+                  value:
+                    error:
+                      code: INVALID_REQUEST
+                      message: The request is not valid. Check the request fields and try again.
         '500':
           description: Transfer could not complete; balances remain unchanged.
           content:
@@ -105,10 +119,12 @@ components:
           type: string
           description: Source savings account owned by the authenticated customer.
           minLength: 1
+          maxLength: 64
         to_account:
           type: string
           description: Different, existing Simple Bank recipient account.
           minLength: 1
+          maxLength: 64
         amount:
           type: string
           pattern: '^(0|[1-9][0-9]*)(\.[0-9]{1,2})?$'
@@ -159,6 +175,7 @@ components:
             code:
               type: string
               enum:
+                - INVALID_REQUEST
                 - INVALID_AMOUNT
                 - SAME_ACCOUNT
                 - ACCOUNT_NOT_FOUND

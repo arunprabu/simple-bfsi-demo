@@ -4,7 +4,7 @@ from collections.abc import Callable
 from contextlib import AbstractAsyncContextManager
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Protocol
 from zoneinfo import ZoneInfo
 
@@ -99,7 +99,11 @@ def parse_transfer_amount(value: object) -> Decimal:
     if amount < MINIMUM_AMOUNT:
         raise TransferError(TransferErrorCode.INVALID_AMOUNT)
 
-    return amount.quantize(CENT)
+    try:
+        return amount.quantize(CENT)
+    except InvalidOperation as exc:
+        # Amounts too large for the decimal context are not valid transfers.
+        raise TransferError(TransferErrorCode.INVALID_AMOUNT) from exc
 
 
 def ist_day_window(now: datetime) -> tuple[datetime, datetime]:
@@ -155,7 +159,8 @@ class TransferService:
                 result_code=error.code.value,
             )
             raise
-        except SQLAlchemyError as error:
+        except (SQLAlchemyError, OSError) as error:
+            # OSError covers connection failures that the driver does not wrap.
             log_transfer_event(
                 "failed",
                 from_account=from_account,
